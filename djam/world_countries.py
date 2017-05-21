@@ -7,7 +7,7 @@
 
     :email: devel@amvtek.com
 """
-from __future__ import unicode_literals, absolute_import
+
 
 from django.conf import settings
 from django import forms
@@ -49,11 +49,11 @@ class CountrySelectField(forms.ChoiceField):
 
             COUNTRIES = cache.get('_COUNTRIES')
             if COUNTRIES is None:
-                COUNTRIES = frozenset(pytz.country_names.keys())
+                COUNTRIES = frozenset(list(pytz.country_names.keys()))
                 cache['_COUNTRIES'] = COUNTRIES
 
             locale = babel.Locale.parse(localeKey)
-            countries = [(k, v) for k, v in locale.territories.items() if k in COUNTRIES]
+            countries = [(k, v) for k, v in list(locale.territories.items()) if k in COUNTRIES]
             countries.sort(key=lambda t: t[1])
             cache[localeKey] = countries
 

@@ -10,7 +10,7 @@
 
     :email: devel@amvtek.com
 """
-from __future__ import unicode_literals
+
 
 # Provide correspondance in between django and sqlalchemy for database
 # config variables... 

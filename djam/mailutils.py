@@ -8,7 +8,7 @@
 
     :email: devel@amvtek.com
 """
-from __future__ import unicode_literals
+
 
 import re
 import string
@@ -19,6 +19,7 @@ from django.template.loader import get_template
 from django.core.mail import EmailMessage, EmailMultiAlternatives
 from django.utils.encoding import force_text, force_bytes
 from django.utils import translation
+import collections
 
 class InlineImage(MIMEImage):
     """
@@ -134,7 +135,7 @@ class EmailTemplate(object):
         if inlineImages:
             inlines = []
             for inline in inlineImages:
-                if callable(inline):
+                if isinstance(inline, collections.Callable):
                     inlines.append(inline)
                 else:
                     inlines.append(InlineImage(*inline))
@@ -236,7 +237,7 @@ class EmailTemplate(object):
 
                 for inline in self.inlineImages:
 
-                    if callable(inline):
+                    if isinstance(inline, collections.Callable):
                         # inline callable shall return a 2-tuple containing
                         # inline_name, inline_bytes
                         inline = InlineImage(*inline(**kwargs))
@@ -248,7 +249,7 @@ class EmailTemplate(object):
             if self.docAttachments:
                 for attachment in self.docAttachments:
 
-                    if callable(attachment):
+                    if isinstance(attachment, collections.Callable):
                         # attachment callable shall return a 3-tuple containing
                         # attachment_name, attachment_bytes, attachment_mime_type
                         attachment = attachment(**kwargs)

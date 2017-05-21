@@ -5,13 +5,14 @@
 
     :email: devel@amvtek.com
 """
-from __future__ import unicode_literals, division
+
 
 import os, re, hashlib, threading, string
 from binascii import hexlify
 
 from django.conf import settings
 from django.utils import six
+import collections
 
 class SharedStateBase(object):
     "Allow all instances to 'reliably' share variables"
@@ -96,13 +97,13 @@ def get_cbv_object(viewfunc):
         #
         # this approach is **fragile** as it rely on inner variable names, 
         # used in base as_view implementation
-        ctx = dict(zip(view.__code__.co_freevars,
+        ctx = dict(list(zip(view.__code__.co_freevars,
             [c.cell_contents for c in (view.__closure__ or [])]
-            ))
+            )))
         initkwargs = ctx.get('initkwargs') or {}
         CBV = ctx.get('cls')
         
-        if callable(CBV):
+        if isinstance(CBV, collections.Callable):
             return CBV(**initkwargs)
 
     except:
@@ -110,7 +111,7 @@ def get_cbv_object(viewfunc):
         return None
 
 
-_STEPS = range(4, 0, -1)  # cache possible formatting steps
+_STEPS = list(range(4, 0, -1))  # cache possible formatting steps
 _SEPARATORS = string.whitespace + "_-"
 
 def r2h(rawId, sep=" "):

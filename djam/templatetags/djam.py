@@ -5,7 +5,7 @@
 
     :email: devel@amvtek.com
 """
-from __future__ import unicode_literals, absolute_import
+
 
 from django import template
 from django.core.urlresolvers import reverse

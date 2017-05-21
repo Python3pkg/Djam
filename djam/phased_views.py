@@ -8,7 +8,7 @@
 
     :email: devel@amvtek.com
 """
-from __future__ import unicode_literals
+
 
 import re, json
 
@@ -18,6 +18,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from django.utils.encoding import smart_text
 from django.utils import six
+import collections
 
 class PhasedRequestProcessingMeta(type):
     """
@@ -104,11 +105,11 @@ class PhasedRequestProcessingMeta(type):
                 l = []
                 lname = "_{0}Phases".format(verb.lower())
                 for phase in verbPhases:
-                    if callable(phase):
+                    if isinstance(phase, collections.Callable):
                         l.append(phase)
                     else:
                         phaseFunc = lookup(phase)
-                        if not callable(phaseFunc):
+                        if not isinstance(phaseFunc, collections.Callable):
                             errMsg = "missing callable for phase %s in %s" % \
                                      (phase, verb)
                             raise meta.UnknownCallable(errMsg)

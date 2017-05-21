@@ -7,7 +7,7 @@
 
     :email: devel@amvtek.com
 """
-from __future__ import unicode_literals, absolute_import
+
 
 import threading
 
@@ -168,7 +168,7 @@ class Registry(object):
             if engineIdx is not None:
 
                 # we check that every value in engineIdx are Engine instance
-                for v in engineIdx.values():
+                for v in list(engineIdx.values()):
                     if not isinstance(v, Engine):
                         raise ConfigError("Invalid SQLALCHEMY_ENGINES setting")
 
@@ -183,7 +183,7 @@ class Registry(object):
                 saprefix = "sqlalchemy.{0}".format
                 engineIdx = {}
 
-                for dbkey, config in databases.items():
+                for dbkey, config in list(databases.items()):
 
                     # skip if sqlalchemy.ignored is True
                     if config.get('sqlalchemy.ignored'):

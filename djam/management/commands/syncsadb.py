@@ -8,7 +8,7 @@
 
     :email: devel@amvtek.com
 """
-from __future__ import unicode_literals
+
 
 from optparse import make_option
 import inspect
@@ -73,5 +73,5 @@ class Command(NoArgsCommand):
                     metadatas.add(m)
 
         for metadata in metadatas:
-            print("now synchronizing %s" % metadata)
+            print(("now synchronizing %s" % metadata))
             metadata.create_all(bind=engine)

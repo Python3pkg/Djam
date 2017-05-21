@@ -8,13 +8,14 @@
 
     :email: devel@amvtek.com
 """
-from __future__ import unicode_literals
+
 
 from copy import copy
 from collections import Iterable
 
 from django import forms
 from django.conf import settings
+import collections
 
 class AddErrorMixin:
     """
@@ -50,7 +51,7 @@ class ObjForm(forms.Form, AddErrorMixin):
             initial = kwargs['initial']
             isObj = False
             for method in ['keys', '__getitem__']:
-                if not callable(getattr(initial, method, None)):
+                if not isinstance(getattr(initial, method, None), collections.Callable):
                     isObj = True
                     break
 
@@ -67,7 +68,7 @@ class ObjForm(forms.Form, AddErrorMixin):
         obj = initialObj or dataObj
 
         if obj:
-            for field in self.base_fields.keys():
+            for field in list(self.base_fields.keys()):
                 value = getattr(obj, field, None)
                 if value is not None:
                     dictData[field] = value
@@ -88,7 +89,7 @@ class ObjForm(forms.Form, AddErrorMixin):
         "transfer form cleaned_datas in obj..."
 
         cleaned_data = self.cleaned_data  # local alias
-        attrs = attrs or cleaned_data.keys()
+        attrs = attrs or list(cleaned_data.keys())
 
         for aname in attrs:
             setattr(obj, aname, cleaned_data.get(aname))
@@ -107,13 +108,13 @@ def fieldset_factory(fieldsets, prefix_init=None):
     for name, formClass in fieldsets:
         if name in names:
             raise ValueError("Multiple use of %s prefix" % name)
-        if not callable(formClass):
+        if not isinstance(formClass, collections.Callable):
             raise ValueError("Invalid Form class %s" % name)
-        if not callable(getattr(formClass, 'is_valid', None)):
+        if not isinstance(getattr(formClass, 'is_valid', None), collections.Callable):
             raise ValueError("Invalid Form class %s" % name)
         names.add(name)
 
-    if callable(prefix_init):
+    if isinstance(prefix_init, collections.Callable):
         prefix_init = staticmethod(prefix_init)
 
     class FSForm(dict):
@@ -130,12 +131,12 @@ def fieldset_factory(fieldsets, prefix_init=None):
 
                 initial = kwargs.pop('initial', None)
                 obj = kwargs.pop('obj', None)
-                if callable(prefix_init):
+                if isinstance(prefix_init, collections.Callable):
                     # use prefix_init to finish initialization...
                     initial = initial and prefix_init(initial)
                     obj = obj and prefix_init(obj)
 
-                for pfx, Form in self._fieldsets.items():
+                for pfx, Form in list(self._fieldsets.items()):
                     kw = copy(kwargs)
                     if initial:
                         kw['initial'] = initial.get(pfx)
@@ -144,7 +145,7 @@ def fieldset_factory(fieldsets, prefix_init=None):
                     kw['prefix'] = pfx
                     self[pfx] = Form(*args, **kw)
             else:
-                for pfx, Form in self._fieldsets.items():
+                for pfx, Form in list(self._fieldsets.items()):
                     kw = copy(kwargs)
                     kw['prefix'] = pfx
                     self[pfx] = Form(*args, **kw)
@@ -154,7 +155,7 @@ def fieldset_factory(fieldsets, prefix_init=None):
 
             if self.__isValid is None:
                 isValid = True
-                for pfx, form in self.items():
+                for pfx, form in list(self.items()):
                     if pfx in self._fieldsets:
                         isValid &= form.is_valid()
                 self.__isValid = isValid
@@ -164,14 +165,14 @@ def fieldset_factory(fieldsets, prefix_init=None):
             "call populate_obj on each of the internal 'fieldset' form..."
 
             fs = self._fieldsets  # local alias
-            for pfx, form in self.items():
+            for pfx, form in list(self.items()):
                 if pfx in fs:
-                    if callable(getattr(form, 'populate_obj', None)):
+                    if isinstance(getattr(form, 'populate_obj', None), collections.Callable):
                         form.populate_obj(obj, *attrs)
                     elif isinstance(form, Iterable):
                         # we may have a formset, will attend iterating it...
                         for f in form:
-                            if callable(getattr(f, 'populate_obj', None)):
+                            if isinstance(getattr(f, 'populate_obj', None), collections.Callable):
                                 f.populate_obj(obj, *attrs)
 
         def __repr__(self):
